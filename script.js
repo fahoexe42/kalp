@@ -1,4 +1,4 @@
-// 100+ örnek fotoğraf linki (dilediğin gibi değiştirebilirsin)
+// 100 fotoğraf için örnek dizi (dilediğin gibi değiştirebilirsin)
 const photoUrls = Array.from({length: 100}, (_, i) => `https://randomuser.me/api/portraits/med/${i%2===0?'men':'women'}/${i%50}.jpg`);
 
 let camera, scene, renderer, controls;
@@ -36,11 +36,10 @@ function init() {
     const texture = new THREE.TextureLoader().load(photoUrls[i]);
     texture.minFilter = THREE.LinearFilter;
     const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    const geo = new THREE.PlaneGeometry(2, 2);
+    const geo = new THREE.PlaneGeometry(1.7, 1.7);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(heart.x, heart.y, heart.z);
     mesh.lookAt(0, 0, 0);
-    mesh.userData = { texture, mat };
     scene.add(mesh);
     meshes.push(mesh);
   }
@@ -51,6 +50,7 @@ function init() {
 
 function heart3D(phi, theta, scale) {
   // 3D kalp parametrik denklem
+  // https://mathworld.wolfram.com/HeartSurface.html
   const r = scale * (1 - Math.sin(phi)) * 0.8;
   const x = r * Math.sin(phi) * Math.cos(theta);
   const y = r * Math.sin(phi) * Math.sin(theta);
@@ -75,14 +75,8 @@ function onScroll(e) {
 function updateBlur() {
   const blur = zoom < 0.2;
   meshes.forEach(mesh => {
-    if (blur) {
-      mesh.material.map.encoding = THREE.sRGBEncoding;
-      mesh.material.map.needsUpdate = true;
-      mesh.material.map.image.style = mesh.material.map.image.style || {};
-      mesh.material.map.image.className = 'texture-blur';
-    } else {
-      mesh.material.map.image.className = 'texture-sharp';
-    }
+    mesh.material.opacity = blur ? 0.7 : 1.0;
+    mesh.material.needsUpdate = true;
   });
 }
 
